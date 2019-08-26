@@ -6,5 +6,5 @@ ReactDOM.render(
     <span>
         Image Viewer
     </span>, 
-    document.getElementById('r')
+    document.getElementById('root')
 );
