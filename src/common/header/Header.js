@@ -1,252 +1,120 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
-import Typography from '@material-ui/core/Typography';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
-import MenuItem from '@material-ui/core/MenuItem';
+import React, { Component } from 'react';
+import './Header.css';
 import Menu from '@material-ui/core/Menu';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import MenuItem from '@material-ui/core/MenuItem';
 import { withStyles } from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu';
-import SearchIcon from '@material-ui/icons/Search';
-import AccountCircle from '@material-ui/icons/AccountCircle';
+import ListItemText from '@material-ui/core/ListItemText';
 import Avatar from '@material-ui/core/Avatar';
-import MoreIcon from '@material-ui/icons/MoreVert';
+import { withRouter , Link} from 'react-router-dom';
+import Divider from '@material-ui/core/Divider';
+import Search from '@material-ui/icons/Search';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+
+const StyledMenu = withStyles({
+    paper: {
+      border: '1px solid #d3d4d5',
+      backgroundColor: '#DFDFDF',
+      padding: 8,
+      marginTop: 4,
+    },
+  })(props => (
+    <Menu
+      elevation={0}
+      getContentAnchorEl={null}
+      anchorOrigin={{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      transformOrigin={{
+        vertical: 'top',
+        horizontal: 'center',
+      }}
+      {...props}
+    />
+  ));
 
 
-
-import { Router, Route, Link, browserHistory, IndexRoute } from 'react-router-dom';
-
-const styles = theme => ({
+ const StyledMenuItem = withStyles(theme => ({
     root: {
-        width: '100%',
-        backgroundColor:'#263238',
-    },
-    shape:
-        {
-            InputBaseBoaderRadius:'4px',
+      padding: 4,
+      minHeight: 'auto',
+      '&:focus': {
+        backgroundColor: theme.palette.primary.main,
+        '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+          color: theme.palette.common.white,
         },
-    grow: {
-        flexGrow: 1,
+      },
     },
-    menuButton: {
-        marginLeft: -12,
-        marginRight: 20,
-    },
-    appbar:
-        {
-            backgroundColor:"#263238",
-        },
-    title: {
-        display: 'none',
-        [theme.breakpoints.up('sm')]: {
-            display: 'block',
+  }))(MenuItem);
 
-        },
-    },
-    search: {
-        position: 'relative',
-        borderRadius: '4px',
-        backgroundColor: fade(theme.palette.common.white, 0.15),
-        '&:hover': {
-            backgroundColor: fade(theme.palette.common.white, 0.25),
-        },
-        marginRight: theme.spacing.unit * 2,
-        marginLeft: '700px',
-        width: '100%',
-        [theme.breakpoints.up('sm')]: {
-            marginLeft: theme.spacing.unit * 3,
-            width: '300px',
+class Header extends Component {
 
-        },
-    },
-    searchBox:
-        {
-            marginLeft:'700px',
-            borderRadius:'4px',
-        },
+    constructor(props) {
+        super(props);
+        this.state = {
+            loggedIn: sessionStorage.getItem('access-token') == null ? false : true,
+            accessToken : '8661035776.d0fcd39.39f63ab2f88d4f9c92b0862729ee2784',
+            open: false,
+            anchorEl: null,
+            searchText: ''
+        };
+    }
 
-    searchIcon: {
-        width: theme.spacing.unit * 9,
-        height: '100%',
-        position: 'absolute',
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        borderRadius:'4px',
-        justifyContent: 'center',
-    },
-    inputRoot: {
-        color: 'inherit',
-        width: '100%',
-    },
-    inputInput: {
-        paddingTop: theme.spacing.unit,
-        paddingRight: theme.spacing.unit,
-        paddingBottom: theme.spacing.unit,
-        paddingLeft: theme.spacing.unit * 10,
-        transition: theme.transitions.create('width'),
-        width: '100%',
-        [theme.breakpoints.up('md')]: {
-            width: '300',
-
-            backgroundColor:'#c0c0c0',
-            borderradius: '4px',
-        },
-    },
-    bigAvatar: {
-        margin: 10,
-        width: 60,
-        height: 60,
-    },
-    sectionDesktop: {
-        display: 'none',
-        [theme.breakpoints.up('md')]: {
-            display: 'flex',
-        },
-    },
-    sectionMobile: {
-        display: 'flex',
-        [theme.breakpoints.up('md')]: {
-            display: 'none',
-        },
-    },
-});
-
-class Header extends React.Component {
-    state = {
-        anchorEl: null,
-        mobileMoreAnchorEl: null,
-    };
-
-    handleProfileMenuOpen = event => {
+    handleClick = (event) => {
         this.setState({ anchorEl: event.currentTarget });
-    };
-
-    handleMenuClose = () => {
+    }
+    
+    handleClose = (purpose, e) => {
+        if( purpose === 'profile'){
+            this.props.history.push("/profile");
+        } else if( purpose === 'logout') {
+            sessionStorage.clear();
+            this.props.history.push("/");
+        } 
         this.setState({ anchorEl: null });
-        this.handleMobileMenuClose();
     };
+    
 
-    handleMobileMenuOpen = event => {
-        this.setState({ mobileMoreAnchorEl: event.currentTarget });
-    };
-
-    handleMobileMenuClose = () => {
-        this.setState({ mobileMoreAnchorEl: null });
-    };
-
-    render() {
-        const { anchorEl, mobileMoreAnchorEl } = this.state;
-        const { classes,screen } = this.props;
-        const isMenuOpen = Boolean(anchorEl);
-        const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-        const renderMenu = (
-            <Menu
-                anchorEl={anchorEl}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                open={isMenuOpen}
-                onClose={this.handleMenuClose}
-            >
-
-
-                <div>
-
-                    <Link to={"/profile"}><MenuItem onClick={this.handleMenuClose }>
-                        My account</MenuItem></Link>
-                </div>
-
-                <hr/>
-                <Link to={"/"}><MenuItem onClick={this.handleMenuClose}>Log Out</MenuItem></Link>
-            </Menu>
-        );
-
-        const renderMobileMenu = (
-            <Menu
-                anchorEl={mobileMoreAnchorEl}
-                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                open={isMobileMenuOpen}
-                onClose={this.handleMenuClose}
-            >
-
-
-                <MenuItem onClick={this.handleProfileMenuOpen}>
-                    <IconButton color="inherit">
-                        <AccountCircle />
-
-                    </IconButton>
-                    <p>Profile</p>
-                </MenuItem>
-            </Menu>
-        );
-
-        return (
-            <div className={classes.root}>
-                <AppBar className={classes.appbar}position="static" backgroundColor="#263238">
-                    <Toolbar>
-                        <Typography className={classes.title} variant="h6" color="inherit" noWrap>
-                            Image Viewer
-
-                        </Typography>
-                        <Toolbar>
-                            {(screen === "Home")}
-                            <div className={classes.searchBox}>
-                                <div className={classes.search}>
-                                    <div className={classes.searchIcon}>
-                                        <SearchIcon />
-
-                                    </div>
-                                    <div className={classes.searchTemp} >
-                                        <InputBase
-                                            placeholder="Search…"
-                                            classes={{
-                                                root: classes.inputRoot,
-                                                input: classes.inputInput,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-
-                            </div>
-
-                        </Toolbar>
-                        <div className={classes.grow} />
-                        <div className={classes.sectionDesktop}>
-
-
-
-
-                            <IconButton
-                                aria-owns={isMenuOpen ? 'material-appbar' : undefined}
-                                aria-haspopup="true"
-                                onClick={this.handleProfileMenuOpen}
-                                color="inherit"
-                            >
-                                <AccountCircle />
-                            </IconButton>
-                        </div>
-                        <div className={classes.sectionMobile}>
-                            <IconButton aria-haspopup="true" onClick={this.handleMobileMenuOpen} color="inherit">
-                                <MoreIcon />
-                            </IconButton>
-                        </div>
-                    </Toolbar>
-                </AppBar>
-                {renderMenu}
-                {renderMobileMenu}
+    
+    render() {  
+        return(
+            <div>
+                <header className="app-header">
+                { this.props.match.path ==="/profile" ? <Link  to="/home" className="app-logo" >Image Viewer</Link> : <div className="app-logo">Image Viewer</div> }
+                    {this.props.profileIcon === true && this.state.loggedIn ?
+                        <div className="header-right">
+                          { this.props.match.path ==="/home" ? <Paper className="searchbox">
+                                <Search />
+                            <InputBase className="input" placeholder="Search..." onChange={this.props.searchChangeHandler}/>
+                          </Paper> : ""}
+                          <div className="showprofile-icon">
+                              <Avatar 
+                                  alt={this.state.profileUserName} 
+                                  src={this.props.profilePicture}  
+                                  className="avatar" 
+                                  onClick={this.handleClick}
+                                  aria-owns={this.state.anchorEl ? 'simple-menu' : undefined}
+                                  aria-haspopup="true"/>
+                              <StyledMenu id="simple-menu" anchorEl={this.state.anchorEl} open={Boolean(this.state.anchorEl)} onClose={this.handleClose.bind(this,'')}>
+                                    
+                                  { this.props.match.path !=="/profile" ? 
+                                  <div>
+                                  <StyledMenuItem className="menu-item" onClick={this.handleClose.bind(this,'profile')}>
+                                    <ListItemText primary="My Account" />
+                                  </StyledMenuItem> 
+                                  <Divider light /> 
+                                  </div>: ""  }
+                                  <StyledMenuItem className="menu-item" onClick={this.handleClose.bind(this, 'logout')}>
+                                    <ListItemText primary="Logout" />
+                                  </StyledMenuItem> 
+                              </StyledMenu>
+                          </div> 
+                        </div> : ""}
+                </header>
             </div>
-        );
+        )
     }
 }
 
-Header.propTypes = {
-    classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Header);
+export default withRouter(Header);
